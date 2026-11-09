@@ -3,6 +3,12 @@
         <div class="col-md-6">
             <div class="card p-4 shadow-sm">
                 <h3 class="text-center text-gold mb-4">ОНЛАЙН-ЗАПИСЬ</h3>
+
+                <?php if (!empty($error)): ?>
+                    <div class="alert alert-danger bg-dark text-danger border-danger mb-4">
+                        <?= htmlspecialchars($error) ?>
+                    </div>
+                <?php endif; ?>
                 
                 <form id="appointmentForm" action="/appointment/create" method="POST">
                     <div class="mb-3">
