@@ -75,4 +75,17 @@ class Appointment {
         ");
         return $stmt->execute([$appointmentId, $clientId]);
     }
+
+    public static function isTimeSlotTaken(int $barberId, string $date, string $time): bool {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("
+            SELECT id FROM appointments 
+            WHERE barber_id = ? 
+            AND appointment_date = ? 
+            AND appointment_time = ? 
+            AND status IN ('pending', 'confirmed')
+        ");
+        $stmt->execute([$barberId, $date, $time]);
+        return (bool)$stmt->fetch();
+    }
 }
