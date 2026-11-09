@@ -11,16 +11,28 @@ class CabinetController extends Controller {
             exit;
         }
 
-        $clientId = $_SESSION['user_id'];
-        $appointments = Appointment::getByClient($clientId);
+        $userId = (int)$_SESSION['user_id'];
 
-        // Получаем тост-уведомление, если оно есть
-        $toast = $_SESSION['toast'] ?? null;
-        unset($_SESSION['toast']);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cancel_appointment') {
+            $appointmentId = (int)($_POST['appointment_id'] ?? 0);
+            
+            if ($appointmentId > 0) {
+                if (Appointment::cancelByClient($appointmentId, $userId)) {
+                    $_SESSION['toast'] = 'Запись успешно отменена.';
+                } else {
+                    $_SESSION['toast_error'] = 'Не удалось отменить запись или время визита уже прошло.';
+                }
+            }
+            
+            header('Location: /cabinet');
+            exit;
+        }
+
+        $appointments = Appointment::getByClientId($userId);
 
         $this->render('cabinet/index', [
             'appointments' => $appointments,
-            'toast' => $toast
+            'userName' => $_SESSION['user_name'] ?? 'Клиент'
         ]);
     }
 }

@@ -38,6 +38,7 @@ $router->add('admin', ['controller' => 'AdminController', 'action' => 'index']);
 $router->add('admin/services', ['controller' => 'AdminController', 'action' => 'services']);
 $router->add('admin/barbers', ['controller' => 'AdminController', 'action' => 'barbers']);
 $router->add('admin/appointments', ['controller' => 'AdminController', 'action' => 'appointments']);
+$router->add('cabinet', ['controller' => 'CabinetController', 'action' => 'index']);
 
 $uri = $_SERVER['REQUEST_URI'];
 $scriptName = dirname($_SERVER['SCRIPT_NAME']);

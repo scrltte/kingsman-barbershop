@@ -7,7 +7,10 @@ use PDO;
 class Appointment {
     public static function create(int $clientId, int $barberId, int $serviceId, string $date, string $time): bool {
         $db = Database::getConnection();
-        $stmt = $db->prepare("INSERT INTO appointments (client_id, barber_id, service_id, appointment_date, appointment_time, status) VALUES (?, ?, ?, ?, ?, 'pending')");
+        $stmt = $db->prepare("
+            INSERT INTO appointments (client_id, barber_id, service_id, appointment_date, appointment_time, status) 
+            VALUES (?, ?, ?, ?, ?, 'pending')
+        ");
         return $stmt->execute([$clientId, $barberId, $serviceId, $date, $time]);
     }
 
@@ -42,5 +45,34 @@ class Appointment {
         $db = Database::getConnection();
         $stmt = $db->prepare("UPDATE appointments SET status = ? WHERE id = ?");
         return $stmt->execute([$status, $id]);
+    }
+
+    public static function getByClientId(int $clientId): array {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("
+            SELECT a.*, 
+                s.title AS service_title, 
+                s.price AS service_price, 
+                b.name AS barber_name, 
+                b.specialization AS barber_specialization,
+                b.photo AS barber_photo
+            FROM appointments a
+            JOIN services s ON a.service_id = s.id
+            JOIN barbers b ON a.barber_id = b.id
+            WHERE a.client_id = ?
+            ORDER BY a.appointment_date DESC, a.appointment_time DESC
+        ");
+        $stmt->execute([$clientId]);
+        return $stmt->fetchAll();
+    }
+
+    public static function cancelByClient(int $appointmentId, int $clientId): bool {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("
+            UPDATE appointments 
+            SET status = 'cancelled' 
+            WHERE id = ? AND client_id = ? AND status IN ('pending', 'confirmed')
+        ");
+        return $stmt->execute([$appointmentId, $clientId]);
     }
 }
