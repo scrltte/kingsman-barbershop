@@ -48,6 +48,26 @@ CREATE TABLE IF NOT EXISTS appointments (
     FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 1. Создаем таблицу галереи работ
+CREATE TABLE IF NOT EXISTS gallery (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    barber_id INT DEFAULT NULL,
+    title VARCHAR(255) DEFAULT 'Стрижка & Укладка',
+    image VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (barber_id) REFERENCES barbers(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 2. Создаем таблицу отзывов
+CREATE TABLE IF NOT EXISTS reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    rating TINYINT NOT NULL DEFAULT 5,
+    comment TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- ========================================================
 -- НАПОЛНЕНИЕ ДАННЫМИ (6 СТРОК В КАЖДОЙ ОСНОВНОЙ ТАБЛИЦЕ)
@@ -75,3 +95,11 @@ INSERT INTO barbers (name, specialization, experience_years, photo) VALUES
 ('Артем Лебедев', 'Креативные стрижки, стайлинг и уход', 3, 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=800&q=80'),
 ('Евгений Васильев', 'Универсальный мастер, быстрая и точная работа', 5, 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80');
 
+
+-- Добавим тестовый отзыв (убедитесь, что user_id с таким ID существует у вас в таблице users)
+INSERT INTO reviews (user_id, rating, comment) VALUES 
+(2, 5, 'Отличный барбершоп! Мастер сделал всё в лучшем виде, атмосфера пушка.');
+
+-- Добавим тестовую картинку в галерею (картинка должна лежать в public/uploads/gallery/)
+INSERT INTO gallery (title, image) VALUES 
+('Классическая стрижка', 'default.jpg');
