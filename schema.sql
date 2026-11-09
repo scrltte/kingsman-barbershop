@@ -58,15 +58,19 @@ CREATE TABLE IF NOT EXISTS gallery (
     FOREIGN KEY (barber_id) REFERENCES barbers(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 2. Создаем таблицу отзывов
 CREATE TABLE IF NOT EXISTS reviews (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
+    appointment_id INT DEFAULT NULL,
+    barber_id INT DEFAULT NULL,
     rating TINYINT NOT NULL DEFAULT 5,
     comment TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE,
+    FOREIGN KEY (barber_id) REFERENCES barbers(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 
 -- ========================================================

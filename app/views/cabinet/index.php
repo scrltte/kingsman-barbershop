@@ -1,107 +1,110 @@
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
-        <div>
-            <h2 class="text-gold fw-bold mb-1">ЛИЧНЫЙ КАБИНЕТ</h2>
-            <p class="text-secondary mb-0">Добро пожаловать, <span class="text-white fw-semibold"><?= htmlspecialchars($userName) ?></span>!</p>
+<div class="container py-5 text-white">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h1 class="text-gold fw-bold text-uppercase">Личный кабинет</h1>
+            <p class="text-muted">Добро пожаловать, <?= htmlspecialchars($_SESSION['user_name'] ?? 'Гость') ?>!</p>
         </div>
-        <a href="/appointment/create" class="btn btn-gold px-4">+ Новая запись</a>
+        <div class="col-text-end">
+            <a href="/appointment/create" class="btn btn-gold fw-bold">Новая запись</a>
+        </div>
     </div>
 
     <?php if (!empty($_SESSION['toast'])): ?>
-        <div class="alert alert-success bg-dark text-success border-success mb-4 alert-dismissible fade show">
+        <div class="alert alert-success bg-dark text-success border-success alert-dismissible fade show" role="alert">
             <?= htmlspecialchars($_SESSION['toast']) ?>
-            <?php unset($_SESSION['toast']); ?>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
         </div>
+        <?php unset($_SESSION['toast']); ?>
     <?php endif; ?>
 
-    <?php if (!empty($_SESSION['toast_error'])): ?>
-        <div class="alert alert-danger bg-dark text-danger border-danger mb-4 alert-dismissible fade show">
-            <?= htmlspecialchars($_SESSION['toast_error']) ?>
-            <?php unset($_SESSION['toast_error']); ?>
+    <?php if (!empty($_SESSION['error'])): ?>
+        <div class="alert alert-danger bg-dark text-danger border-danger alert-dismissible fade show" role="alert">
+            <?= htmlspecialchars($_SESSION['error']) ?>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
         </div>
+        <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
 
-    <div class="card bg-dark text-white border-secondary shadow-sm p-4">
-        <h4 class="text-gold mb-4">Мои записи на визит</h4>
+    <h3 class="text-gold mb-3">Мои записи</h3>
 
-        <?php if (empty($appointments)): ?>
-            <div class="text-center py-5">
-                <p class="text-secondary mb-3">У вас пока нет активных или завершенных записей.</p>
-                <a href="/appointment/create" class="btn btn-outline-warning">Записаться прямо сейчас</a>
-            </div>
-        <?php else: ?>
-            <div class="table-responsive">
-                <table class="table table-dark table-hover align-middle">
-                    <thead>
-                        <tr class="text-secondary border-secondary">
-                            <th>Мастер</th>
-                            <th>Услуга</th>
-                            <th>Дата и время</th>
-                            <th>Стоимость</th>
-                            <th>Статус</th>
-                            <th class="text-end">Действие</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($appointments as $app): ?>
-                            <tr class="border-secondary border-opacity-25">
-                                <td>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <?php if (!empty($app['barber_photo'])): ?>
-                                            <img src="<?= htmlspecialchars($app['barber_photo']) ?>" 
-                                                 alt="" 
-                                                 class="rounded-circle object-fit-cover" 
-                                                 style="width: 45px; height: 45px;">
-                                        <?php else: ?>
-                                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-dark fw-bold" 
-                                                 style="width: 45px; height: 45px;">
-                                                <?= mb_substr($app['barber_name'], 0, 1) ?>
-                                            </div>
-                                        <?php endif; ?>
-                                        <div>
-                                            <div class="fw-semibold text-white"><?= htmlspecialchars($app['barber_name']) ?></div>
-                                            <small class="text-muted"><?= htmlspecialchars($app['barber_specialization']) ?></small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="fw-medium text-gold"><?= htmlspecialchars($app['service_title']) ?></span>
-                                </td>
-                                <td>
-                                    <div class="text-white"><?= date('d.m.Y', strtotime($app['appointment_date'])) ?></div>
-                                    <small class="text-muted">в <?= date('H:i', strtotime($app['appointment_time'])) ?></small>
-                                </td>
-                                <td class="fw-bold text-white">
-                                    <?= number_format($app['service_price'], 0, '', ' ') ?> ₽
-                                </td>
-                                <td>
-                                    <?php 
-                                        $statusMap = [
-                                            'pending' => ['В обработке', 'bg-warning text-dark'],
-                                            'confirmed' => ['Подтверждено', 'bg-success text-white'],
-                                            'completed' => ['Завершено', 'bg-secondary text-white'],
-                                            'cancelled' => ['Отменено', 'bg-danger text-white']
-                                        ];
-                                        $st = $statusMap[$app['status']] ?? [$app['status'], 'bg-light text-dark'];
-                                    ?>
-                                    <span class="badge <?= $st[1] ?> px-3 py-2"><?= $st[0] ?></span>
-                                </td>
-                                <td class="text-end">
-                                    <?php if (in_array($app['status'], ['pending', 'confirmed'])): ?>
-                                        <form action="/cabinet" method="POST" class="d-inline" onsubmit="return confirm('Вы уверены, что хотите отменить эту запись?');">
-                                            <input type="hidden" name="action" value="cancel_appointment">
-                                            <input type="hidden" name="appointment_id" value="<?= $app['id'] ?>">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm px-3">Отменить</button>
-                                        </form>
+    <div class="row">
+        <div class="col-12">
+            <?php if (!empty($appointments)): ?>
+                <?php foreach ($appointments as $app): ?>
+                    <div class="card bg-black text-white border-secondary mb-3 p-3 shadow-sm">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h5 class="text-gold mb-1"><?= htmlspecialchars($app['service_title']) ?></h5>
+                                <p class="text-muted small mb-0">
+                                    Мастер: <span class="text-white"><?= htmlspecialchars($app['barber_name']) ?></span> | 
+                                    Дата: <span class="text-white"><?= htmlspecialchars($app['appointment_date']) ?></span> в 
+                                    <span class="text-white"><?= htmlspecialchars($app['appointment_time']) ?></span>
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-md-end mt-3 mt-md-0 d-flex justify-content-md-end align-items-center justify-content-between">
+                                <?php 
+                                    $statusClass = 'bg-secondary';
+                                    $statusText = $app['status'];
+                                    if ($app['status'] === 'pending') { $statusClass = 'bg-warning text-dark'; $statusText = 'Ожидает'; }
+                                    elseif ($app['status'] === 'confirmed') { $statusClass = 'bg-info text-dark'; $statusText = 'Подтверждена'; }
+                                    elseif ($app['status'] === 'completed') { $statusClass = 'bg-success'; $statusText = 'Завершена'; }
+                                    elseif ($app['status'] === 'cancelled') { $statusClass = 'bg-danger'; $statusText = 'Отменена'; }
+                                ?>
+                                <span class="badge <?= $statusClass ?> fs-6"><?= $statusText ?></span>
+
+                                <?php if ($app['status'] === 'completed'): ?>
+                                    <?php if (\App\Models\Review::existsForAppointment($app['id'])): ?>
+                                        <span class="badge bg-secondary ms-2">Отзыв оставлен</span>
                                     <?php else: ?>
-                                        <span class="text-muted small">—</span>
+                                        <button class="btn btn-sm btn-outline-warning ms-2 fw-bold" data-bs-toggle="modal" data-bs-target="#reviewModal<?= $app['id'] ?>">Оставить отзыв</button>
                                     <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <?php if ($app['status'] === 'completed' && !\App\Models\Review::existsForAppointment($app['id'])): ?>
+                        <div class="modal fade text-dark" id="reviewModal<?= $app['id'] ?>" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content bg-dark text-white border-secondary">
+                                    <form action="/cabinet/review" method="POST">
+                                        <input type="hidden" name="appointment_id" value="<?= $app['id'] ?>">
+                                        <div class="modal-header border-secondary">
+                                            <h5 class="modal-title text-gold">Оцените ваш визит</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body text-start">
+                                            <div class="mb-3">
+                                                <label class="form-label text-secondary">Рейтинг (от 1 до 5 звезд)</label>
+                                                <select name="rating" class="form-select bg-dark text-white border-secondary">
+                                                    <option value="5">★★★★★ (5 - Отлично)</option>
+                                                    <option value="4">★★★★☆ (4 - Хорошо)</option>
+                                                    <option value="3">★★★☆☆ (3 - Нормально)</option>
+                                                    <option value="2">★★☆☆☆ (2 - Плохо)</option>
+                                                    <option value="1">★☆☆☆☆ (1 - Ужасно)</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label text-secondary">Ваш отзыв о мастере</label>
+                                                <textarea name="comment" class="form-control bg-dark text-white border-secondary" rows="3" required placeholder="Напишите пару слов о качестве стрижки и сервисе..."></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-secondary">
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+                                            <button type="submit" class="btn btn-gold fw-bold">Отправить отзыв</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="card bg-black text-white border-secondary p-4 text-center">
+                    <p class="text-muted mb-3">У вас пока нет активных или прошедших записей.</p>
+                    <a href="/appointment/create" class="btn btn-gold btn-sm mx-auto fw-bold">Записаться на первую стрижку</a>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 </div>

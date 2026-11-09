@@ -65,16 +65,28 @@
     </div>
 </section>
 
-<section class="py-5 bg-black text-white border-top border-secondary">
+
+<section class="py-5 bg-dark text-white border-top border-secondary">
     <div class="container py-4">
         <h2 class="text-gold text-center text-uppercase fw-bold mb-2">Отзывы гостей</h2>
-        <p class="text-muted text-center mb-5">Что о нас говорят постоянные клиенты</p>
+        <p class="text-muted text-center mb-4">Что о нас говорят постоянные клиенты</p>
+
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-6 text-center">
+                <div class="p-3 bg-black border border-secondary rounded shadow-sm d-inline-block px-4">
+                    <span class="fs-4 text-gold fw-bold me-2">★ <?= number_format($reviewStats['rating'] ?? 5.0, 1) ?></span>
+                    <span class="text-muted border-start border-secondary ps-3 ms-2">
+                        Всего отзывов: <strong class="text-white"><?= $reviewStats['total'] ?? 0 ?></strong>
+                    </span>
+                </div>
+            </div>
+        </div>
 
         <div class="row g-4">
             <?php if (!empty($reviews)): ?>
                 <?php foreach ($reviews as $review): ?>
                     <div class="col-md-4">
-                        <div class="card bg-dark text-white border-secondary h-100 p-4 shadow-sm">
+                        <div class="card bg-black text-white border-secondary h-100 p-4 shadow-sm">
                             <div class="mb-3 text-gold">
                                 <?php 
                                     $rating = (int)($review['rating'] ?? 5);
@@ -87,7 +99,12 @@
                                 "<?= htmlspecialchars($review['comment']) ?>"
                             </p>
                             <div class="mt-auto pt-3 border-top border-secondary d-flex justify-content-between align-items-center">
-                                <strong class="text-gold"><?= htmlspecialchars($review['client_name']) ?></strong>
+                                <div>
+                                    <strong class="text-gold d-block"><?= htmlspecialchars($review['client_name']) ?></strong>
+                                    <?php if (!empty($review['barber_name'])): ?>
+                                        <small class="text-muted">Мастер: <?= htmlspecialchars($review['barber_name']) ?></small>
+                                    <?php endif; ?>
+                                </div>
                                 <small class="text-muted"><?= date('d.m.Y', strtotime($review['created_at'])) ?></small>
                             </div>
                         </div>

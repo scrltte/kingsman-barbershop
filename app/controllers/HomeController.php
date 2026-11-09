@@ -10,17 +10,17 @@ class HomeController extends Controller {
     public function index(): void {
         $db = Database::getConnection();
         
-        // Надежно получаем данные из таблиц
         $services     = $db->query("SELECT * FROM services ORDER BY price ASC LIMIT 6")->fetchAll();
-        $barbers      = $db->query("SELECT * FROM barbers ORDER BY id ASC")->fetchAll();
         $galleryItems = Gallery::getAll();
-        $reviews      = Review::getApproved();
+        
+        $reviews      = Review::getLatest(3);
+        $reviewStats  = Review::getStats();
 
         $this->render('home/index', [
-            'services' => $services,
-            'barbers'  => $barbers,
-            'gallery'  => $galleryItems,
-            'reviews'  => $reviews
+            'services'    => $services,
+            'gallery'     => $galleryItems,
+            'reviews'     => $reviews,
+            'reviewStats' => $reviewStats
         ]);
     }
 }
